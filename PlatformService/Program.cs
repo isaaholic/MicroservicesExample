@@ -12,6 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 if (builder.Environment.IsDevelopment())
     builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMem"));
 
@@ -24,6 +26,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    PrepDb.PrepPopulation(app);
 }
 
 app.UseHttpsRedirection();
@@ -32,6 +35,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-PrepDb.PrepPopulation(app);
 
 app.Run();
