@@ -15,15 +15,32 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMem"));
+Console.WriteLine("---> Using SqlServer Db");
+builder.Services.AddDbContext<AppDbContext>(
+    option => option.UseSqlServer(builder.Configuration.GetConnectionString("PlatformsConn"))
+    );
+
+if (builder.Environment.IsProduction())
+{
+    Console.WriteLine("---> Using SqlServer Db");
+    builder.Services.AddDbContext<AppDbContext>(
+        option => option.UseSqlServer(builder.Configuration.GetConnectionString("PlatformsConn"))
+        );
+}
+else
+{
+    Console.WriteLine("---> Using InMem Db");
+    builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMem"));
+}
+
 
 builder.Services.AddScoped<IPlatformRepository, PlatformRepository>();
 
-builder.Services.AddHttpClient<ICommandDataClient,HttpCommandDataClient>();
+builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 
 var app = builder.Build();
 
-PrepDb.PrepPopulation(app);
+PrepDb.PrepPopulation(app, app.Environment.IsProduction());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
